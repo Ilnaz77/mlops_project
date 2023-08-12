@@ -128,8 +128,8 @@ if __name__ == "__main__":
     kwargs = {
         "batch_size": 256,
         "num_epochs": 3,
-        "embed_size": 10,
-        "hidden_size": 10,
+        "embed_size": 5,
+        "hidden_size": 5,
         "n_freq": 1,
     }
 

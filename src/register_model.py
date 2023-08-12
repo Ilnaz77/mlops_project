@@ -13,8 +13,6 @@ from model import load_model_from_s3
 
 def run_register_model():
     mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    mlflow.set_experiment(os.environ["MLFLOW_TEST_EXPERIMENT_NAME"])
-
     client = MlflowClient()
 
     # Retrieve the top_n model runs and log the models
@@ -28,38 +26,33 @@ def run_register_model():
         order_by=["metrics.best_val_loss ASC"]
     )
 
+    best_model = {"mean_test_loss": 1e34, "artifacts_run_id": None}
     for run in runs:
         if run.info.status != "FINISHED":
             continue
         with mlflow.start_run():
             loss = test(experiment.experiment_id, run.info.run_id)
-            mlflow.log_metric("mean_test_loss", loss)
-            mlflow.log_param("artifacts_run_id", run.info.run_id)
-
-    # Select the model with the lowest test RMSE
-    experiment = client.get_experiment_by_name(os.environ["MLFLOW_TEST_EXPERIMENT_NAME"])
-    best_run = client.search_runs(experiment_ids=experiment.experiment_id,
-                                  run_view_type=ViewType.ACTIVE_ONLY,
-                                  order_by=["metrics.mean_test_loss ASC"])[0]
+            if loss < best_model["mean_test_loss"]:
+                best_model["mean_test_loss"] = loss
+                best_model["artifacts_run_id"] = run.info.run_id
 
     # Register the best model
-    version = mlflow.register_model(model_uri=f"runs:/{best_run.info.run_id}/model",
-                                    name=f"sentiment_analys_model",
-                                    tags={"exp_id": train_experiment_id,
-                                          "run_id": best_run.data.params['artifacts_run_id']})
+    version = mlflow.register_model(model_uri=f"runs:/{best_model['artifacts_run_id']}/model",
+                                    name=f"sentiment_analysis",
+                                    tags={"exp_id": train_experiment_id})
 
-    client.transition_model_version_stage(name="sentiment_analys_model", version=version.version, stage="Staging")
+    client.transition_model_version_stage(name="sentiment_analysis", version=version.version, stage="Staging")
 
 
 def update_production_model():
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    model_name = "sentiment_analys_model"
+    model_name = "sentiment_analysis"
 
     best_version = -1
     best_loss = np.inf
     for mv in client.search_model_versions(f"name='{model_name}'"):
         exp_id = mv.tags["exp_id"]
-        run_id = mv.tags["run_id"]
+        run_id = mv.run_id
         version = mv.version
         loss = test(exp_id, run_id)
         if loss < best_loss:
