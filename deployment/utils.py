@@ -1,16 +1,20 @@
 import os
 from typing import Tuple
-
-import mlflow
 import torch
 from mlflow import MlflowClient
+from tokenizers import Tokenizer
 
 from src.dataloader import VocabularyWords
-from src.model import load_model_from_s3
+from src.model import load_model_from_s3, RNNModel
 
 
-def get_sentiment(text: str, model, tokenizer, device) -> str:
-    mapping = {0: "negative", 1: "neutral", 2: "positive"}
+def get_sentiment(text: str, model: RNNModel, tokenizer: Tokenizer, device: torch.device) -> str:
+    if not isinstance(text, str):
+        raise Exception(f"text should be str, but {type(str)} was given ...")
+
+    mapping = {0: "negative",
+               1: "neutral",
+               2: "positive", }
     tokens = torch.LongTensor(tokenizer.encode(text).ids).unsqueeze(0).to(device)
     sentiment = model.inference(tokens).argmax(-1).cpu().item()
     return mapping[sentiment]
@@ -19,8 +23,8 @@ def get_sentiment(text: str, model, tokenizer, device) -> str:
 def get_prod_model() -> Tuple:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    client = MlflowClient()
+    # mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
+    client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
 
     exp_id = client.get_experiment_by_name(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"]).experiment_id
     latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
@@ -45,5 +49,5 @@ def _get_tokenizer(run_id: str, exp_id: int):
 
 
 if __name__ == "__main__":
-    model, tokenizer, device = get_prod_model()
-    get_sentiment("i like this film", model, tokenizer, device)
+    model_prod, tokenizer_prod, device_prod = get_prod_model()
+    get_sentiment("i like this film", model_prod, tokenizer_prod, device_prod)
