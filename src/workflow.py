@@ -101,7 +101,7 @@ def main():
 
     os.environ["MLFLOW_EXPERIMENT_NAME"] = data_hash
 
-    split_data()
+    split_data(data)
     train_model()
     update_prod_model()
 

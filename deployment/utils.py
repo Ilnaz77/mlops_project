@@ -24,7 +24,6 @@ def get_prod_model() -> Tuple:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-
     latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
 
     run_id, exp_id = None, None
@@ -32,8 +31,8 @@ def get_prod_model() -> Tuple:
         if version.current_stage == "Production":
             run_id = version.run_id
             exp_id = version.tags["exp_id"]
-    if run_id is None:
-        raise Exception("There is not production model ...")
+    if run_id is None or exp_id is None:
+        raise Exception(f"There is not production model ... run_id is {run_id}, exp_id is {exp_id}.")
 
     tokenizer = _get_tokenizer(run_id, exp_id)
     model = load_model_from_s3(exp_id, run_id, device)
