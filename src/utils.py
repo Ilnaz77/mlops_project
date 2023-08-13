@@ -10,6 +10,7 @@ import s3fs
 import torch
 from prettytable import PrettyTable
 from sklearn.metrics import precision_score, recall_score
+from sklearn.model_selection import train_test_split
 
 
 def _s3() -> s3fs.S3FileSystem:
@@ -54,6 +55,49 @@ def count_parameters(model):
     print(table)
     print(f"Total Trainable Params: {total_params}")
     return total_params
+
+
+def prepare_train_test_split_data(data: pd.DataFrame):
+    def _clean_text(text: str) -> str:
+        replace_list = {r"i'm": 'i am',
+                        r"'re": ' are',
+                        r"let’s": 'let us',
+                        r"'s": ' is',
+                        r"'ve": ' have',
+                        r"can't": 'can not',
+                        r"cannot": 'can not',
+                        r"shan’t": 'shall not',
+                        r"n't": ' not',
+                        r"'d": ' would',
+                        r"'ll": ' will',
+                        r"'scuse": 'excuse',
+                        ',': ' ,',
+                        '.': ' .',
+                        '!': ' !',
+                        '?': ' ?',
+                        '\s+': ' '}
+        text = text.lower()
+        for s in replace_list:
+            text = text.replace(s, replace_list[s])
+        return ' '.join(text.split())
+
+    data["text"] = data["text"].map(_clean_text)
+    data = data[data["text"] != '']
+
+    train, val = train_test_split(data, test_size=0.1, stratify=data["sentiment"].tolist())
+    val, test = train_test_split(val, test_size=0.2, stratify=val["sentiment"].tolist())
+
+    options = {
+        'client_kwargs': {
+            'endpoint_url': os.environ["AWS_ENDPOINT_URL"],
+        }
+    }
+
+    val.to_parquet(os.environ["VAL_PATH"], storage_options=options)
+    train.to_parquet(os.environ["TRAIN_PATH"], storage_options=options)
+    test.to_parquet(os.environ["TEST_PATH"], storage_options=options)
+
+
 
 
 class Metric:

@@ -127,6 +127,13 @@ def main(
                                    loss_val=metric.last_val_loss, curr_lr=optimizer.param_groups[0]["lr"])
 
 
+def run_train(kwargs: dict):
+    mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
+    mlflow.set_experiment(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"])
+
+    main(**kwargs)
+
+
 if __name__ == "__main__":
     kwargs = {
         "batch_size": 256,
@@ -135,8 +142,4 @@ if __name__ == "__main__":
         "hidden_size": 5,
         "n_freq": 1,
     }
-
-    mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    mlflow.set_experiment(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"])
-
-    main(**kwargs)
+    run_train(kwargs)

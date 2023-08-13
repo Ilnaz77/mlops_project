@@ -3,13 +3,13 @@ import json
 import boto3
 import base64
 import mlflow
-from utils import model_prod, get_sentiment
+from utils import get_prod_model, get_sentiment
 
 kinesis_client = boto3.client('kinesis',
                               endpoint_url=os.environ["KINESIS_ENDPOINT_URL"],
                               region_name=os.environ["KINESIS_REGION_NAME"], )
 
-model, tokenizer, device = model_prod()
+model, tokenizer, device = get_prod_model()
 
 
 def lambda_handler(event, context):

@@ -1,7 +1,6 @@
 import os
 
 import mlflow
-import numpy as np
 import torch
 from mlflow import MlflowClient
 from mlflow.entities import ViewType
@@ -11,7 +10,7 @@ from dataloader import Collate, QueryDataset, VocabularyWords
 from model import load_model_from_s3
 
 
-def run_register_model():
+def update_production_model():
     mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
     client = MlflowClient()
 
@@ -39,29 +38,10 @@ def run_register_model():
                                     name=os.environ["MODEL_NAME"],
                                     tags={"exp_id": experiment.experiment_id})
 
-    client.transition_model_version_stage(name=os.environ["MODEL_NAME"], version=version.version, stage="Staging")
-
-
-def update_production_model():
-    client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-
-    best_version = -1
-    best_loss = np.inf
-    for mv in client.search_model_versions(f"name='{os.environ['MODEL_NAME']}'"):
-        exp_id = mv.tags["exp_id"]
-        run_id = mv.run_id
-        version = mv.version
-        loss = test(exp_id, run_id)
-        if loss < best_loss:
-            best_loss = loss
-            best_version = version
-
-    client.transition_model_version_stage(
-        name=os.environ["MODEL_NAME"],
-        version=best_version,
-        stage="Production",
-        archive_existing_versions=True
-    )
+    client.transition_model_version_stage(name=os.environ["MODEL_NAME"],
+                                          version=version.version,
+                                          stage="Production",
+                                          archive_existing_versions=True, )
 
 
 def test(exp_id: int, run_id: str) -> float:
@@ -97,5 +77,4 @@ def test(exp_id: int, run_id: str) -> float:
 
 
 if __name__ == "__main__":
-    run_register_model()
     update_production_model()
