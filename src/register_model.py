@@ -15,7 +15,7 @@ def update_production_model():
     client = MlflowClient()
 
     # Retrieve the top_n model runs and log the models
-    experiment = client.get_experiment_by_name(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"])
+    experiment = client.get_experiment_by_name(os.environ["MLFLOW_EXPERIMENT_NAME"])
 
     runs = client.search_runs(
         experiment_ids=experiment.experiment_id,

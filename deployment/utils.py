@@ -23,16 +23,15 @@ def get_sentiment(text: str, model: RNNModel, tokenizer: Tokenizer, device: torc
 def get_prod_model() -> Tuple:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
 
-    exp_id = client.get_experiment_by_name(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"]).experiment_id
     latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
 
-    run_id = None
+    run_id, exp_id = None, None
     for version in latest_versions:
         if version.current_stage == "Production":
             run_id = version.run_id
+            exp_id = version.tags["exp_id"]
     if run_id is None:
         raise Exception("There is not production model ...")
 

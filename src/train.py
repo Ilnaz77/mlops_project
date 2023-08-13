@@ -129,7 +129,7 @@ def main(
 
 def run_train(kwargs: dict):
     mlflow.set_tracking_uri(f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    mlflow.set_experiment(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"])
+    mlflow.set_experiment(os.environ["MLFLOW_EXPERIMENT_NAME"])
 
     main(**kwargs)
 

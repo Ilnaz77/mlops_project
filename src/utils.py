@@ -58,32 +58,6 @@ def count_parameters(model):
 
 
 def prepare_train_test_split_data(data: pd.DataFrame):
-    def _clean_text(text: str) -> str:
-        replace_list = {r"i'm": 'i am',
-                        r"'re": ' are',
-                        r"let’s": 'let us',
-                        r"'s": ' is',
-                        r"'ve": ' have',
-                        r"can't": 'can not',
-                        r"cannot": 'can not',
-                        r"shan’t": 'shall not',
-                        r"n't": ' not',
-                        r"'d": ' would',
-                        r"'ll": ' will',
-                        r"'scuse": 'excuse',
-                        ',': ' ,',
-                        '.': ' .',
-                        '!': ' !',
-                        '?': ' ?',
-                        '\s+': ' '}
-        text = text.lower()
-        for s in replace_list:
-            text = text.replace(s, replace_list[s])
-        return ' '.join(text.split())
-
-    data["text"] = data["text"].map(_clean_text)
-    data = data[data["text"] != '']
-
     train, val = train_test_split(data, test_size=0.1, stratify=data["sentiment"].tolist())
     val, test = train_test_split(val, test_size=0.2, stratify=val["sentiment"].tolist())
 
@@ -98,14 +72,12 @@ def prepare_train_test_split_data(data: pd.DataFrame):
     test.to_parquet(os.environ["TEST_PATH"], storage_options=options)
 
 
-
-
 class Metric:
     def __init__(self,
                  mlflow: Any,
                  len_train_dataset: int | None = None,
                  len_val_dataset: int | None = None,
-                 len_test_dataset: int | None = None,):
+                 len_test_dataset: int | None = None, ):
         self.mlflow = mlflow
         self.metric_threshold = 0.5
 
