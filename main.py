@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-from datetime import datetime
 from typing import Tuple, Any
 
 import pandas as pd
@@ -10,9 +9,9 @@ from loguru import logger
 from mlflow import MlflowClient
 from prefect import task, flow
 
-from register_model import update_production_model
-from train import run_train
-from utils import read_parquet_s3, prepare_train_test_split_data
+from src.register_model import update_production_model
+from src.train import run_train
+from src.utils import read_parquet_s3, prepare_train_test_split_data
 
 
 @task(retries=2, retry_delay_seconds=15, name="Check data has changed or not")

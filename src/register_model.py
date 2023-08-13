@@ -36,7 +36,8 @@ def update_production_model():
     # Register the best model
     version = mlflow.register_model(model_uri=f"runs:/{best_model['artifacts_run_id']}/model",
                                     name=os.environ["MODEL_NAME"],
-                                    tags={"exp_id": experiment.experiment_id})
+                                    tags={"exp_id": experiment.experiment_id,
+                                          "exp_name": os.environ["MLFLOW_EXPERIMENT_NAME"]},)
 
     client.transition_model_version_stage(name=os.environ["MODEL_NAME"],
                                           version=version.version,
