@@ -15,7 +15,7 @@ from torch import LongTensor
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 
-from utils import read_pickle_from_s3, read_parquet_s3
+from src.utils import read_pickle_from_s3, read_parquet_s3
 
 
 class Collate:

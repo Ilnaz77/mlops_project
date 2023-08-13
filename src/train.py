@@ -58,12 +58,15 @@ def main(
         )
 
         model = RNNModel(
-            vocab_size=len(train_dataset.vocab_words),
+            vocab_size=len(vocab_words),
             output_size=3,
             embed_size=embed_size,
             hidden_size=hidden_size,
             pad_idx=pad_idx,
         ).to(device)
+
+        mlflow.log_param("pad_idx", pad_idx)
+        mlflow.log_param("output_size", 3)
 
         criterion = nn.CrossEntropyLoss(ignore_index=pad_idx, reduction="sum")
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -118,7 +121,7 @@ def main(
                 if metric.last_val_loss < best_val_loss:
                     mlflow.log_metric("best_val_loss", metric.last_val_loss)
                     best_val_loss = metric.last_val_loss
-                    mlflow.pytorch.log_model(model, os.environ["MODEL_ARTIFACT_PATH"])
+                    mlflow.pytorch.log_state_dict(model.state_dict(), os.environ["MODEL_ARTIFACT_PATH"])
 
                 tepoch.set_postfix(epoch=epoch + 1, loss_train=metric.last_train_loss,
                                    loss_val=metric.last_val_loss, curr_lr=optimizer.param_groups[0]["lr"])

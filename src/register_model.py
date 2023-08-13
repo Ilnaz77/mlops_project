@@ -17,7 +17,6 @@ def run_register_model():
 
     # Retrieve the top_n model runs and log the models
     experiment = client.get_experiment_by_name(os.environ["MLFLOW_TRAIN_EXPERIMENT_NAME"])
-    train_experiment_id = experiment.experiment_id
 
     runs = client.search_runs(
         experiment_ids=experiment.experiment_id,
@@ -30,27 +29,25 @@ def run_register_model():
     for run in runs:
         if run.info.status != "FINISHED":
             continue
-        with mlflow.start_run():
-            loss = test(experiment.experiment_id, run.info.run_id)
-            if loss < best_model["mean_test_loss"]:
-                best_model["mean_test_loss"] = loss
-                best_model["artifacts_run_id"] = run.info.run_id
+        loss = test(experiment.experiment_id, run.info.run_id)
+        if loss < best_model["mean_test_loss"]:
+            best_model["mean_test_loss"] = loss
+            best_model["artifacts_run_id"] = run.info.run_id
 
     # Register the best model
     version = mlflow.register_model(model_uri=f"runs:/{best_model['artifacts_run_id']}/model",
-                                    name=f"sentiment_analysis",
-                                    tags={"exp_id": train_experiment_id})
+                                    name=os.environ["MODEL_NAME"],
+                                    tags={"exp_id": experiment.experiment_id})
 
-    client.transition_model_version_stage(name="sentiment_analysis", version=version.version, stage="Staging")
+    client.transition_model_version_stage(name=os.environ["MODEL_NAME"], version=version.version, stage="Staging")
 
 
 def update_production_model():
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    model_name = "sentiment_analysis"
 
     best_version = -1
     best_loss = np.inf
-    for mv in client.search_model_versions(f"name='{model_name}'"):
+    for mv in client.search_model_versions(f"name='{os.environ['MODEL_NAME']}'"):
         exp_id = mv.tags["exp_id"]
         run_id = mv.run_id
         version = mv.version
@@ -60,7 +57,7 @@ def update_production_model():
             best_version = version
 
     client.transition_model_version_stage(
-        name=model_name,
+        name=os.environ["MODEL_NAME"],
         version=best_version,
         stage="Production",
         archive_existing_versions=True
