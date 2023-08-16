@@ -2,7 +2,6 @@ import os
 import json
 import boto3
 import base64
-import mlflow
 from utils import get_prod_model, get_sentiment
 
 kinesis_client = boto3.client('kinesis',
@@ -13,7 +12,7 @@ model, tokenizer, device = get_prod_model()
 
 
 def lambda_handler(event, context):
-    # print(json.dumps(event))
+    print(json.dumps(event))
 
     predictions_events = []
     response = None
@@ -48,6 +47,3 @@ def lambda_handler(event, context):
         'predictions': predictions_events,
         'response': response,
     }
-
-if __name__ == "__main__":
-    ...
