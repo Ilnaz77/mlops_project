@@ -8,4 +8,5 @@ WORKDIR /app
 COPY [ "Pipfile", "Pipfile.lock", "./" ]
 RUN pipenv install --system --deploy
 
-COPY [ "/deployment", "/src/dataloader.py", "/src/model.py", "/src/utils.py", "./"]
+COPY ["/src/dataloader.py", "/src/model.py", "/src/utils.py", "./src/"]
+COPY [ "/deployment", "./"]

@@ -2,6 +2,7 @@ import os
 from typing import Tuple
 import torch
 from mlflow import MlflowClient
+from mlflow.exceptions import RestException
 from tokenizers import Tokenizer
 
 from src.dataloader import VocabularyWords
@@ -24,7 +25,10 @@ def get_prod_model() -> Tuple:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
+    try:
+        latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
+    except RestException:
+        return False  # there is no any model
 
     run_id, exp_id = None, None
     for version in latest_versions:

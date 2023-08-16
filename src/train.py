@@ -9,9 +9,9 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from dataloader import Collate, QueryDataset, VocabularyWords
-from model import RNNModel
-from utils import Metric
+from src.dataloader import Collate, QueryDataset, VocabularyWords
+from src.model import RNNModel
+from src.utils import Metric
 
 
 def main(

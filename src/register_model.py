@@ -6,8 +6,8 @@ from mlflow import MlflowClient
 from mlflow.entities import ViewType
 from torch.utils.data import DataLoader
 
-from dataloader import Collate, QueryDataset, VocabularyWords
-from model import load_model_from_s3
+from src.dataloader import Collate, QueryDataset, VocabularyWords
+from src.model import load_model_from_s3
 
 
 def update_production_model():

@@ -7,6 +7,7 @@ from typing import Tuple, Any
 import pandas as pd
 from loguru import logger
 from mlflow import MlflowClient
+from mlflow.exceptions import RestException
 from prefect import task, flow
 
 from src.register_model import update_production_model
@@ -43,7 +44,11 @@ def check_model() -> bool:
     We must avoid the situation, when there is no Production model.
     """
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
-    latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
+    try:
+        latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
+    except RestException:
+        return False  # there is no any model
+
     check = False
     for version in latest_versions:
         if version.current_stage == "Production":
