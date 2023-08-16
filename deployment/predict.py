@@ -1,10 +1,13 @@
-from flask import Flask, request, jsonify
-from utils import get_prod_model, get_sentiment
+import os
 
+from flask import Flask, request, jsonify
+
+from utils import get_prod_model, get_sentiment
 
 model, tokenizer, device = get_prod_model()
 
 app = Flask('sentiment-prediction')
+
 
 @app.route('/predict', methods=['POST'])
 def predict_endpoint():
@@ -21,4 +24,4 @@ def predict_endpoint():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=9696)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ["PORT"]))

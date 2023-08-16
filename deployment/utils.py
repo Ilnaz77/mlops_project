@@ -25,10 +25,11 @@ def get_prod_model() -> Tuple:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     client = MlflowClient(tracking_uri=f"http://{os.environ['TRACKING_SERVER_HOST']}:5000")
+
     try:
         latest_versions = client.get_latest_versions(name=os.environ["MODEL_NAME"])
     except RestException:
-        return False  # there is no any model
+        raise RestException("There is no any model! Try to train new one via running main.py ...")
 
     run_id, exp_id = None, None
     for version in latest_versions:
