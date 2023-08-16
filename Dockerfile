@@ -13,5 +13,3 @@ COPY [ "/deployment", "./"]
 
 EXPOSE 9696
 CMD [ "python3", "predict.py" ]
-
-# ENTRYPOINT ["gunicorn", "--bind=0.0.0.0:9696", "predict:app"]
