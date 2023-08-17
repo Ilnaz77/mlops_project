@@ -46,7 +46,6 @@ screen -S mlflow
 bash mlflow.sh
 ctrl-A + D
 ```
-aws kinesis --endpoint https://yds.serverless.yandexcloud.net put-record --stream-name /ru-central1/b1g41827q6vgahb2tqsm/etnakvn8tl32u1kungim/output --cli-binary-format raw-in-base64-out --data '{"user_id":"user1","score":100}' --partition-key 1
 
 # Kinesis
 ## Send data to input
@@ -65,28 +64,25 @@ echo ${RESULT} | jq -r '.Records[0].Data' | base64 --decode
 ```
 
 
-## Example lambda function
+## Dockerfile local
+```bash
+docker build -t sentiment-prediction-service:v1 .
+docker run -it --rm -p 9696:9696 --env-file .env  sentiment-prediction-service:v1
 ```
-import boto3
-import json
-import os
 
-kinesis_client = boto3.client('kinesis',
-                              endpoint_url=os.environ["KINESIS_ENDPOINT_URL"],
-                              region_name=os.environ["KINESIS_REGION_NAME"], )
-                              
-def handler(event, context):
-    print(event)
-
-    response = kinesis_client.put_record(
-            StreamName=f"/{os.environ['KINESIS_REGION_NAME']}/{os.environ['KINESIS_OUTPUT_CLOUD_NAME']}/{os.environ['KINESIS_OUTPUT_DB_NAME']}/{os.environ['KINESIS_OUTPUT_STREAM_NAME']}",
-            Data=json.dumps(event),
-            PartitionKey=str(1)
-        )
-    
-    return {
-        'statusCode': 200,
-        'body': 'Hello World!',
-        'response': response,
-    }
+## From local container to serverless container
+```
+- Login in yandex via browser.
+- Get oauth-token in https://cloud.yandex.ru/docs/container-registry/operations/authentication#user-oauth
+- Login in Yandex to push image to cr.yandex via command line:
+     docker login \
+      --username oauth \
+      --password <OAuth-токен> \
+      cr.yandex
+- Get registry_id, you should create service "Container Registry" where you can get it.
+- Build docker image:
+    export registry_id=crpji977h2lv1puvq2e8
+    docker build -t cr.yandex/$registry_id/sentiment-prediction-service:v1 .
+- Push image in hub:
+    docker push cr.yandex/$registry_id/sentiment-prediction-service:v1
 ```

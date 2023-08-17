@@ -9,7 +9,6 @@ COPY [ "Pipfile", "Pipfile.lock", "./" ]
 RUN pipenv install --system --deploy
 
 COPY ["/src/dataloader.py", "/src/model.py", "/src/utils.py", "./src/"]
-COPY [ "/deployment", "./"]
+COPY ["/deployment", "./"]
 
-EXPOSE 9696
-CMD [ "python3", "predict.py" ]
+CMD ["python3", "predict.py"]
