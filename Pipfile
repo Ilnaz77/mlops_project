@@ -26,6 +26,7 @@ prettytable = "3.8.0"
 setuptools = "68.1.0"
 sanic = "23.6.0"
 waitress = "2.1.2"
+importlib-metadata = "*"
 
 [dev-packages]
 jupyter = "1.0.0"
