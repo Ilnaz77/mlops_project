@@ -68,6 +68,8 @@ echo ${RESULT} | jq -r '.Records[0].Data' | base64 --decode
 ```bash
 docker build -t sentiment-prediction-service:v1 .
 docker run -it --rm -p 9696:9696 --env-file .env  sentiment-prediction-service:v1
+
+curl -H "Content-Type: application/json" --data '{"text": "the film i saw very cool!"}' localhost:9696/predict
 ```
 
 ## From local container to serverless container
@@ -77,12 +79,12 @@ docker run -it --rm -p 9696:9696 --env-file .env  sentiment-prediction-service:v
 - Login in Yandex to push image to cr.yandex via command line:
      docker login \
       --username oauth \
-      --password <OAuth-токен> \
+      --password <OAuth-token> \
       cr.yandex
 - Get registry_id, you should create service "Container Registry" where you can get it.
 - Build docker image:
     export registry_id=crpji977h2lv1puvq2e8
     docker build -t cr.yandex/$registry_id/sentiment-prediction-service:v1 .
-- Push image in hub:
+- Push image to yandex registry hub:
     docker push cr.yandex/$registry_id/sentiment-prediction-service:v1
 ```
