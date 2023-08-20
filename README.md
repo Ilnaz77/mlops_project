@@ -50,7 +50,7 @@ ctrl-A + D
 # Kinesis
 ## Send data to input
 ```
-aws kinesis --endpoint https://yds.serverless.yandexcloud.net put-record --stream-name /ru-central1/b1g41827q6vgahb2tqsm/etnakvn8tl32u1kungim/input --cli-binary-format raw-in-base64-out --data '{"text":"user1","score":100}' --partition-key 1
+aws kinesis --endpoint https://yds.serverless.yandexcloud.net put-record --stream-name /ru-central1/b1g41827q6vgahb2tqsm/etnakvn8tl32u1kungim/input --cli-binary-format raw-in-base64-out --data '{"text":"la la la", "score":100}' --partition-key 1
 ```
 
 ## Read input data

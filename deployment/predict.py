@@ -15,11 +15,11 @@ def predict_endpoint():
     text: str = sentiment_event['text']
     sentiment: str = get_sentiment(text, model, tokenizer, device)
 
-    result = {"sentiment": sentiment}
+    result = {"text": text,
+              "sentiment": sentiment, }
 
     return jsonify(result)
 
 
 if __name__ == "__main__":
     serve(app, host="0.0.0.0", port=int(os.environ["PORT"]))
-    # app.run(debug=True, host='0.0.0.0', port=int(os.environ["PORT"]))
