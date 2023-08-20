@@ -81,7 +81,7 @@ curl -H "Content-Type: application/json" --data '{"text": "the film i saw very c
 - Get registry_id, you should create service "Container Registry" where you can get it.
 - Build docker image:
     export registry_id=crpji977h2lv1puvq2e8
-    docker build -t cr.yandex/$registry_id/sentiment-prediction-service:v1 .
+    docker build --platform linux/amd64 -t cr.yandex/$registry_id/sentiment-prediction-service:v1 .
 - Push image to yandex registry hub:
     docker push cr.yandex/$registry_id/sentiment-prediction-service:v1
 ```

@@ -1,6 +1,4 @@
 import json
-import os
-# import boto3
 from utils import get_prod_model, get_sentiment
 
 
