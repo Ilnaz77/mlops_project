@@ -97,7 +97,7 @@ def clean_text(text: str) -> str:
         '?': ' ?',
         '\s+': ' ',
     }
-    text = text.lower()
+    text = str(text).lower()
     for s in replace_list:
         text = text.replace(s, replace_list[s])
     return ' '.join(text.split())
