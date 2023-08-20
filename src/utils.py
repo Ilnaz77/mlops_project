@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import json
 import os
+import json
 import pickle
 from typing import Any
 
-import pandas as pd
 import s3fs
 import torch
+import pandas as pd
 from prettytable import PrettyTable
-from sklearn.metrics import precision_score, recall_score
+from sklearn.metrics import recall_score, precision_score
 from sklearn.model_selection import train_test_split
 
 
@@ -18,7 +18,8 @@ def _s3() -> s3fs.S3FileSystem:
         anon=False,
         key=os.environ["AWS_ACCESS_KEY_ID"],
         secret=os.environ["AWS_SECRET_ACCESS_KEY"],
-        client_kwargs={'endpoint_url': os.environ["AWS_ENDPOINT_URL"]})
+        client_kwargs={'endpoint_url': os.environ["AWS_ENDPOINT_URL"]},
+    )
 
 
 def write_pickle_to_s3(obj: Any, s3_path: str) -> None:
@@ -77,23 +78,25 @@ def prepare_train_test_split_data(data: pd.DataFrame):
 
 def clean_text(text: str) -> str:
     """some data cleaner, it may be better"""
-    replace_list = {r"i'm": 'i am',
-                    r"'re": ' are',
-                    r"let’s": 'let us',
-                    r"'s":  ' is',
-                    r"'ve": ' have',
-                    r"can't": 'can not',
-                    r"cannot": 'can not',
-                    r"shan’t": 'shall not',
-                    r"n't": ' not',
-                    r"'d": ' would',
-                    r"'ll": ' will',
-                    r"'scuse": 'excuse',
-                    ',': ' ,',
-                    '.': ' .',
-                    '!': ' !',
-                    '?': ' ?',
-                    '\s+': ' '}
+    replace_list = {
+        r"i'm": 'i am',
+        r"'re": ' are',
+        r"let’s": 'let us',
+        r"'s": ' is',
+        r"'ve": ' have',
+        r"can't": 'can not',
+        r"cannot": 'can not',
+        r"shan’t": 'shall not',
+        r"n't": ' not',
+        r"'d": ' would',
+        r"'ll": ' will',
+        r"'scuse": 'excuse',
+        ',': ' ,',
+        '.': ' .',
+        '!': ' !',
+        '?': ' ?',
+        '\s+': ' ',
+    }
     text = text.lower()
     for s in replace_list:
         text = text.replace(s, replace_list[s])
@@ -101,11 +104,13 @@ def clean_text(text: str) -> str:
 
 
 class Metric:
-    def __init__(self,
-                 mlflow: Any,
-                 len_train_dataset: int | None = None,
-                 len_val_dataset: int | None = None,
-                 len_test_dataset: int | None = None, ):
+    def __init__(
+        self,
+        mlflow: Any,
+        len_train_dataset: int | None = None,
+        len_val_dataset: int | None = None,
+        len_test_dataset: int | None = None,
+    ):
         self.mlflow = mlflow
         self.metric_threshold = 0.5
 

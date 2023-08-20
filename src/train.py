@@ -2,25 +2,25 @@ from __future__ import annotations
 
 import os
 
-import mlflow
 import torch
-from torch import nn
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.utils.data import DataLoader
+import mlflow
 from tqdm import tqdm
+from torch import nn
+from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from src.dataloader import Collate, QueryDataset, VocabularyWords
 from src.model import RNNModel
 from src.utils import Metric
+from src.dataloader import Collate, QueryDataset, VocabularyWords
 
 
 def main(
-        batch_size: int = 32,
-        num_epochs: int = 100,
-        embed_size: int = 100,
-        hidden_size: int = 100,
-        max_grad_norm: int = 7,
-        n_freq: int = 5,
+    batch_size: int = 32,
+    num_epochs: int = 100,
+    embed_size: int = 100,
+    hidden_size: int = 100,
+    max_grad_norm: int = 7,
+    n_freq: int = 5,
 ):
     with mlflow.start_run():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,7 +70,11 @@ def main(
 
         criterion = nn.CrossEntropyLoss(ignore_index=pad_idx, reduction="sum")
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-        metric = Metric(len_train_dataset=len(train_dataset), len_val_dataset=len(val_dataset), mlflow=mlflow)
+        metric = Metric(
+            len_train_dataset=len(train_dataset),
+            len_val_dataset=len(val_dataset),
+            mlflow=mlflow,
+        )
 
         scheduler = ReduceLROnPlateau(
             optimizer,
@@ -123,8 +127,12 @@ def main(
                     best_val_loss = metric.last_val_loss
                     mlflow.pytorch.log_state_dict(model.state_dict(), os.environ["MODEL_ARTIFACT_PATH"])
 
-                tepoch.set_postfix(epoch=epoch + 1, loss_train=metric.last_train_loss,
-                                   loss_val=metric.last_val_loss, curr_lr=optimizer.param_groups[0]["lr"])
+                tepoch.set_postfix(
+                    epoch=epoch + 1,
+                    loss_train=metric.last_train_loss,
+                    loss_val=metric.last_val_loss,
+                    curr_lr=optimizer.param_groups[0]["lr"],
+                )
 
 
 def run_train(kwargs: dict):

@@ -1,21 +1,21 @@
 from __future__ import annotations
 
-import json
 import os
+import json
 import shutil
 from typing import Any, Dict, List
 
-import pandas as pd
 import torch
-from tokenizers import Tokenizer
-from tokenizers.models import WordLevel
-from tokenizers.pre_tokenizers import Whitespace
-from tokenizers.trainers import WordLevelTrainer
+import pandas as pd
 from torch import LongTensor
-from torch.nn.utils.rnn import pad_sequence
+from tokenizers import Tokenizer
 from torch.utils.data import Dataset
+from tokenizers.models import WordLevel
+from torch.nn.utils.rnn import pad_sequence
+from tokenizers.trainers import WordLevelTrainer
+from tokenizers.pre_tokenizers import Whitespace
 
-from src.utils import read_pickle_from_s3, read_parquet_s3
+from src.utils import read_parquet_s3, read_pickle_from_s3
 
 
 class Collate:
@@ -36,9 +36,11 @@ class Collate:
         # pad words: [batch_size, max_sentence_len_in_batch]
         padd_words = pad_sequence(words, padding_value=self.pad_idx, batch_first=True)
 
-        return {"words": padd_words,
-                "labels": torch.LongTensor(labels),
-                "seq_lengths": seq_lengths.cpu().numpy()}
+        return {
+            "words": padd_words,
+            "labels": torch.LongTensor(labels),
+            "seq_lengths": seq_lengths.cpu().numpy(),
+        }
 
 
 class QueryDataset(Dataset):
@@ -55,8 +57,7 @@ class QueryDataset(Dataset):
         text: str = line["text"]
         numericalized_word: List[int] = self.vocab_words.numericalize(text)
 
-        return {"text": numericalized_word,
-                "labels": label}
+        return {"text": numericalized_word, "labels": label}
 
 
 class VocabularyWords:
@@ -94,7 +95,7 @@ class VocabularyWords:
     def _get_training_corpus(self, sents: List[str]) -> List[str]:
         len_sents = len(sents)
         for i in range(0, len_sents, self.batch_size):
-            yield sents[i: i + self.batch_size]
+            yield sents[i : i + self.batch_size]
 
     def build_vocabulary(self, sentences_list: List[str]):
         trainer = WordLevelTrainer(

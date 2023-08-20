@@ -1,13 +1,13 @@
 import os
 
-import mlflow
 import torch
+import mlflow
 from mlflow import MlflowClient
 from mlflow.entities import ViewType
 from torch.utils.data import DataLoader
 
-from src.dataloader import Collate, QueryDataset, VocabularyWords
 from src.model import load_model_from_s3
+from src.dataloader import Collate, QueryDataset, VocabularyWords
 
 
 def update_production_model():
@@ -21,7 +21,7 @@ def update_production_model():
         experiment_ids=experiment.experiment_id,
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=5,
-        order_by=["metrics.best_val_loss ASC"]
+        order_by=["metrics.best_val_loss ASC"],
     )
 
     best_model = {"mean_test_loss": 1e34, "artifacts_run_id": None}
@@ -34,15 +34,21 @@ def update_production_model():
             best_model["artifacts_run_id"] = run.info.run_id
 
     # Register the best model
-    version = mlflow.register_model(model_uri=f"runs:/{best_model['artifacts_run_id']}/model",
-                                    name=os.environ["MODEL_NAME"],
-                                    tags={"exp_id": experiment.experiment_id,
-                                          "exp_name": os.environ["MLFLOW_EXPERIMENT_NAME"]},)
+    version = mlflow.register_model(
+        model_uri=f"runs:/{best_model['artifacts_run_id']}/model",
+        name=os.environ["MODEL_NAME"],
+        tags={
+            "exp_id": experiment.experiment_id,
+            "exp_name": os.environ["MLFLOW_EXPERIMENT_NAME"],
+        },
+    )
 
-    client.transition_model_version_stage(name=os.environ["MODEL_NAME"],
-                                          version=version.version,
-                                          stage="Production",
-                                          archive_existing_versions=True, )
+    client.transition_model_version_stage(
+        name=os.environ["MODEL_NAME"],
+        version=version.version,
+        stage="Production",
+        archive_existing_versions=True,
+    )
 
 
 def test(exp_id: int, run_id: str) -> float:
@@ -56,7 +62,8 @@ def test(exp_id: int, run_id: str) -> float:
         dataset=test_dataset,
         batch_size=40,
         collate_fn=Collate(pad_idx=vocab_words.stoi["<PAD>"]),
-        shuffle=False)
+        shuffle=False,
+    )
 
     model = load_model_from_s3(exp_id, run_id, device)
     criterion = torch.nn.CrossEntropyLoss(ignore_index=vocab_words.stoi["<PAD>"], reduction="sum")

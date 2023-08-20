@@ -1,8 +1,9 @@
 import os
-from waitress import serve
-from flask import Flask, request, jsonify
-from utils import get_prod_model, get_sentiment
 
+from flask import Flask, jsonify, request
+from waitress import serve
+
+from utils import get_sentiment, get_prod_model
 
 model, tokenizer, device = get_prod_model()
 app = Flask('sentiment-prediction')
@@ -15,8 +16,10 @@ def predict_endpoint():
     text: str = sentiment_event['text']
     sentiment: str = get_sentiment(text, model, tokenizer, device)
 
-    result = {"text": text,
-              "sentiment": sentiment, }
+    result = {
+        "text": text,
+        "sentiment": sentiment,
+    }
 
     return jsonify(result)
 

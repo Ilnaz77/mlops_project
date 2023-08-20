@@ -26,10 +26,15 @@ prettytable = "3.8.0"
 setuptools = "68.1.0"
 sanic = "23.6.0"
 waitress = "2.1.2"
-importlib-metadata = "*"
+importlib-metadata = "6.8.0"
 
 [dev-packages]
 jupyter = "1.0.0"
+black = "23.7.0"
+pylint = "2.17.5"
+pre-commit = "3.3.3"
+isort = "5.12.0"
+pytest = "7.4.0"
 
 [requires]
 python_version = "3.10"

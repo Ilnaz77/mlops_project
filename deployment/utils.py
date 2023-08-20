@@ -1,13 +1,14 @@
 import os
 from typing import Tuple
+
 import torch
 from mlflow import MlflowClient
-from mlflow.exceptions import RestException
 from tokenizers import Tokenizer
+from mlflow.exceptions import RestException
 
-from src.dataloader import VocabularyWords
-from src.model import load_model_from_s3, RNNModel
+from src.model import RNNModel, load_model_from_s3
 from src.utils import clean_text
+from src.dataloader import VocabularyWords
 
 
 def get_sentiment(text: str, model: RNNModel, tokenizer: Tokenizer, device: torch.device) -> str:
@@ -19,9 +20,11 @@ def get_sentiment(text: str, model: RNNModel, tokenizer: Tokenizer, device: torc
     if text == "":
         return "There is empty sentence after normalization ..."
 
-    mapping = {0: "negative",
-               1: "neutral",
-               2: "positive", }
+    mapping = {
+        0: "negative",
+        1: "neutral",
+        2: "positive",
+    }
     tokens = torch.LongTensor(tokenizer.encode(text).ids).unsqueeze(0).to(device)
     sentiment = model.inference(tokens).argmax(-1).cpu().item()
     return mapping[sentiment]

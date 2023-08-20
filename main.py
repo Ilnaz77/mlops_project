@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import hashlib
 import os
-from typing import Tuple, Any
+import hashlib
+from typing import Any, Tuple
 
 import pandas as pd
 from loguru import logger
 from mlflow import MlflowClient
+from prefect import flow, task
 from mlflow.exceptions import RestException
-from prefect import task, flow
 
-from src.register_model import update_production_model
 from src.train import run_train
 from src.utils import read_parquet_s3, prepare_train_test_split_data
+from src.register_model import update_production_model
 
 
 @task(retries=2, retry_delay_seconds=15, name="Check data has changed or not")
@@ -61,21 +61,25 @@ def train_model():
     """
     There we save bests possible configs of model.
     """
-    run_train({
-        "batch_size": 256,
-        "num_epochs": 3,
-        "embed_size": 5,
-        "hidden_size": 5,
-        "n_freq": 1,
-    })
+    run_train(
+        {
+            "batch_size": 256,
+            "num_epochs": 3,
+            "embed_size": 5,
+            "hidden_size": 5,
+            "n_freq": 1,
+        }
+    )
 
-    run_train({
-        "batch_size": 256,
-        "num_epochs": 3,
-        "embed_size": 10,
-        "hidden_size": 10,
-        "n_freq": 1,
-    })
+    run_train(
+        {
+            "batch_size": 256,
+            "num_epochs": 3,
+            "embed_size": 10,
+            "hidden_size": 10,
+            "n_freq": 1,
+        }
+    )
 
 
 @task(name="New data split to train/test/val")
