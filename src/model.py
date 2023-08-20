@@ -62,3 +62,5 @@ def load_model_from_s3(exp_id: int, run_id: str, device: torch.device):
     model.load_state_dict(loaded_state_dict)
 
     return model.eval()
+
+

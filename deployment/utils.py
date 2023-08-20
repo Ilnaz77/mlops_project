@@ -7,11 +7,17 @@ from tokenizers import Tokenizer
 
 from src.dataloader import VocabularyWords
 from src.model import load_model_from_s3, RNNModel
+from src.utils import clean_text
 
 
 def get_sentiment(text: str, model: RNNModel, tokenizer: Tokenizer, device: torch.device) -> str:
     if not isinstance(text, str):
         raise Exception(f"text should be str, but {type(str)} was given ...")
+
+    text = clean_text(text)
+
+    if text == "":
+        return "There is empty sentence after normalization ..."
 
     mapping = {0: "negative",
                1: "neutral",

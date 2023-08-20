@@ -1,12 +1,10 @@
 import os
 from waitress import serve
-
 from flask import Flask, request, jsonify
-
 from utils import get_prod_model, get_sentiment
 
-model, tokenizer, device = get_prod_model()
 
+model, tokenizer, device = get_prod_model()
 app = Flask('sentiment-prediction')
 
 

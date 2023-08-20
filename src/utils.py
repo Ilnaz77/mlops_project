@@ -58,8 +58,11 @@ def count_parameters(model):
 
 
 def prepare_train_test_split_data(data: pd.DataFrame):
-    train, val = train_test_split(data, test_size=0.1, stratify=data["sentiment"].tolist())
-    val, test = train_test_split(val, test_size=0.2, stratify=val["sentiment"].tolist())
+    data["text"] = data["text"].map(clean_text)
+    data = data[data["text"] != '']
+
+    train, val = train_test_split(data, test_size=0.1, stratify=data["sentiment"].tolist(), random_state=4221)
+    val, test = train_test_split(val, test_size=0.2, stratify=val["sentiment"].tolist(), random_state=4221)
 
     options = {
         'client_kwargs': {
@@ -70,6 +73,31 @@ def prepare_train_test_split_data(data: pd.DataFrame):
     val.to_parquet(os.environ["VAL_PATH"], storage_options=options)
     train.to_parquet(os.environ["TRAIN_PATH"], storage_options=options)
     test.to_parquet(os.environ["TEST_PATH"], storage_options=options)
+
+
+def clean_text(text: str) -> str:
+    """some data cleaner, it may be better"""
+    replace_list = {r"i'm": 'i am',
+                    r"'re": ' are',
+                    r"let’s": 'let us',
+                    r"'s":  ' is',
+                    r"'ve": ' have',
+                    r"can't": 'can not',
+                    r"cannot": 'can not',
+                    r"shan’t": 'shall not',
+                    r"n't": ' not',
+                    r"'d": ' would',
+                    r"'ll": ' will',
+                    r"'scuse": 'excuse',
+                    ',': ' ,',
+                    '.': ' .',
+                    '!': ' !',
+                    '?': ' ?',
+                    '\s+': ' '}
+    text = text.lower()
+    for s in replace_list:
+        text = text.replace(s, replace_list[s])
+    return ' '.join(text.split())
 
 
 class Metric:
