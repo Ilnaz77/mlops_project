@@ -91,11 +91,11 @@ def clean_text(text: str) -> str:
         r"'d": ' would',
         r"'ll": ' will',
         r"'scuse": 'excuse',
-        ',': ' ,',
-        '.': ' .',
-        '!': ' !',
-        '?': ' ?',
-        '\s+': ' ',
+        r",": ' ,',
+        r".": ' .',
+        r"!": ' !',
+        r"?": ' ?',
+        r"\s+": ' ',
     }
     text = str(text).lower()
     for s in replace_list:

@@ -66,7 +66,7 @@ echo ${RESULT} | jq -r '.Records[0].Data' | base64 --decode
 docker build -t sentiment-prediction-service:v1 .
 docker run -it --rm -p 9696:9696 --env-file .env  sentiment-prediction-service:v1
 
-curl -H "Content-Type: application/json" --data '{"text": "the film i saw very cool!"}' localhost:9696/predict
+curl -H "Content-Type: application/json" --data '{"text": "the film i saw very cool!"}' localhost:8080/predict
 ```
 
 ## From local container to serverless container
