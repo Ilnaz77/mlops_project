@@ -86,6 +86,20 @@ export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 mlflow server -h 0.0.0.0 -p 5000 --backend-store-uri postgresql://mlflow:mlflow@localhost/mlflow --default-artifact-root s3://zoomcamp-mlops
 ```
 
+## Prefect run
+```bash
+prefect cloud login
+```
+On tmux or screen run prefect worker
+```bash
+prefect work-pool create mlops-project -t process
+prefect worker start -p mlops-project
+```
+Deploy the project with schedule running every week
+```
+prefect deploy --name mlops-project-main-flow
+```
+
 ## Dockerfile local
 ```bash
 docker build -t sentiment-prediction-service:v1 .

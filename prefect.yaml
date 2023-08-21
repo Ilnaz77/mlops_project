@@ -17,12 +17,14 @@ pull:
 - prefect.deployments.steps.git_clone:
     repository: git@github.com:Ilnaz77/mlops_project.git
     branch: main
-    access_token: null
+    access_token: "{{ prefect.blocks.github-credentials.mlops-project }}"
 
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
   - name: mlops-project-main-flow
     entrypoint: main.py:main_flow
+    schedule:
+      cron: 5 8 * * 0
     work_pool:
         name: mlops-project
         work_queue_name: primary-queue
