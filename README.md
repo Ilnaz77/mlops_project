@@ -1,21 +1,3 @@
-# mlops_project
-mlops-zoomcamp final project.
-
-## TODO
-```
-1. Можно попробовать написать:
-    - Мониторинг по кол-ву токенов в old_data & curr_data
-    - По размерности датасета - типа шлем алерт чтобы чекнуть глазами дату
-    - По распределению лэйблов - типа шлем алерт чтобы чекнуть глазами дату
-2. Добить деплой в виде лямбда контейнера
-3. Добить мелкие вещи:
-    There are unit tests (1 point)
-    There is an integration test (1 point)
-    Linter and/or code formatter are used (1 point)
-    There's a Makefile (1 point)
-    There are pre-commit hooks (1 point)
-    There's a CI/CD pipeline (2 points)
-```
 # Problem description
 ```text
 Product description:
