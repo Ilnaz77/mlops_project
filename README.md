@@ -68,6 +68,31 @@ export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 mlflow server -h 0.0.0.0 -p 5000 --backend-store-uri postgresql://mlflow:mlflow@localhost/mlflow --default-artifact-root s3://zoomcamp-mlops
 ```
 
+## Put .env.example to root ~/.env.mlops with your own credentials
+```bash
+source ~/.env.mlops
+```
+
+## Init
+```bash
+make setup
+```
+
+## Unit test
+```bash
+make unit_test
+```
+
+## Integration test
+```bash
+make integration_test
+```
+
+## Code quality_checks
+```bash
+make quality_checks
+```
+
 ## Prefect run
 ```bash
 prefect cloud login
@@ -78,19 +103,16 @@ prefect work-pool create mlops-project -t process
 prefect worker start -p mlops-project
 ```
 Deploy the project with schedule running every week
-```
+```bash
 prefect deploy --name mlops-project-main-flow
 ```
 
-## Dockerfile local
+## Example request to Serverless container
 ```bash
-docker build -t sentiment-prediction-service:v1 .
-docker run -it --rm -p 9696:9696 --env-file .env  sentiment-prediction-service:v1
-
-curl -H "Content-Type: application/json" --data '{"text": "the film i saw very cool!"}' localhost:8080/predict
+curl -H "Content-Type: application/json" --data '{"text": "the film i saw very cool!"}' https://bbaa577627vr542k7kac.containers.yandexcloud.net/predict
 ```
 
-## From local container to serverless container
+## If you want to up Serverless container by yourself
 ```
 - Login in yandex via browser.
 - Get oauth-token in https://cloud.yandex.ru/docs/container-registry/operations/authentication#user-oauth
@@ -100,9 +122,9 @@ curl -H "Content-Type: application/json" --data '{"text": "the film i saw very c
       --password <OAuth-token> \
       cr.yandex
 - Get registry_id, you should create service "Container Registry" where you can get it.
-- Build docker image:
-    export registry_id=crpji977h2lv1puvq2e8
-    docker build --platform linux/amd64 -t cr.yandex/$registry_id/sentiment-prediction-service:v1 .
-- Push image to yandex registry hub:
-    docker push cr.yandex/$registry_id/sentiment-prediction-service:v1
+- export registry_id=$registry_id
+```
+Then, you can do:
+```bash
+make deploy
 ```
