@@ -1,0 +1,14 @@
+# Generic metadata about this project
+name: mlops_project
+prefect-version: 2.11.3
+push: null
+build: bull
+
+# pull section allows you to provide instructions for cloning this project in remote locations
+pull:
+- prefect.deployments.steps.git_clone:
+    repository: git@github.com:Ilnaz77/mlops_project.git
+    branch: main
+    access_token: null
+
+

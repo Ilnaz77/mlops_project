@@ -99,7 +99,7 @@ def update_prod_model():
 
 
 @flow(name="Main workflow")
-def main():
+def main_flow():
     data, data_check, data_hash = check_data()
     model_check = check_model()
 
@@ -113,6 +113,8 @@ def main():
     train_model()
     update_prod_model()
 
+    return None
+
 
 if __name__ == "__main__":
-    main()
+    main_flow()
